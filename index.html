@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>catatan kuliah</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: #fff;
+    color: #111;
+    font-size: 15px;
+    line-height: 1.75;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 1.75rem;
+  }
+
+  a { color: #0055cc; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  a:hover { color: #003a8c; }
+  code { font-family: 'Courier New', monospace; font-size: 12.5px; background: #f4f4f4; padding: 1px 5px; border-radius: 3px; color: #333; }
+
+  /* ── HEADER ── */
+  .site-header {
+    padding: 2rem 0 1rem;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 2rem;
+  }
+  .site-title {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #111;
+  }
+  .site-sub { font-size: 13px; color: #888; margin-top: 4px; font-family: 'Courier New', monospace; }
+  .site-nav { margin-top: 0.6rem; font-size: 14px; display: flex; gap: 1.25rem; }
+  .site-nav a {
+    color: #0055cc;
+    text-decoration: none;
+    font-family: 'Georgia', serif;
+  }
+  .site-nav a:hover { text-decoration: underline; }
+  .site-nav a.active { color: #111; font-weight: bold; text-decoration: none; cursor: default; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── TYPOGRAPHY ── */
+  h1 { font-size: 1.4rem; font-weight: bold; margin-bottom: 0.4rem; line-height: 1.3; color: #111; }
+  h2 { font-size: 1rem; font-weight: bold; margin: 1.5rem 0 0.5rem; color: #111; }
+  p { margin-bottom: 1rem; color: #333; }
+  .meta { font-size: 13px; color: #888; margin-bottom: 1.5rem; font-family: 'Courier New', monospace; }
+
+  /* ── FILTER & SEARCH ── */
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 1rem;
+    align-items: center;
+  }
+  .filter-label { font-size: 13px; color: #666; margin-right: 0.5rem; font-family: 'Courier New', monospace; }
+  .filter-btn {
+    font-size: 13px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #0055cc;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    text-decoration: underline;
+    margin-right: 0.75rem;
+  }
+  .filter-btn:hover { color: #003a8c; }
+  .filter-btn.active { color: #111; text-decoration: none; font-weight: bold; cursor: default; }
+
+  .search-wrap { margin-left: auto; }
+  .search-wrap input {
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    width: 180px;
+    outline: none;
+    background: #fff;
+    color: #111;
+    border-radius: 2px;
+  }
+  .search-wrap input:focus { border-color: #0055cc; }
+  .search-wrap input::placeholder { color: #bbb; }
+
+  .note-count { font-size: 12.5px; color: #999; margin-bottom: 0.75rem; font-family: 'Courier New', monospace; }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: normal;
+    color: #666;
+    text-align: left;
+    padding: 0 0 8px;
+    border-bottom: 1px solid #ddd;
+  }
+  thead th:not(:last-child) { padding-right: 1.5rem; }
+  tbody td {
+    padding: 7px 0;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+    font-size: 14px;
+  }
+  tbody td:not(:last-child) { padding-right: 1.5rem; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #fafafa; }
+
+  td.title a { color: #0055cc; text-decoration: underline; }
+  td.title a:hover { color: #003a8c; }
+  td.matkul { font-family: 'Courier New', monospace; font-size: 12px; color: #666; white-space: nowrap; }
+  td.date { font-family: 'Courier New', monospace; font-size: 12px; color: #999; white-space: nowrap; }
+
+  /* ── VIEWER ── */
+  .viewer-back { font-size: 13px; margin-bottom: 1.75rem; font-family: 'Courier New', monospace; }
+  .viewer-back a { color: #0055cc; }
+  .viewer-back a:hover { color: #003a8c; }
+  .viewer-meta { font-family: 'Courier New', monospace; font-size: 12px; color: #666; margin-bottom: 0.4rem; }
+  .viewer-desc { font-size: 14.5px; color: #444; margin: 0.5rem 0 1.75rem; line-height: 1.7; }
+
+  .viewer-actions { display: flex; gap: 1.5rem; margin-bottom: 2rem; font-size: 14px; }
+  .viewer-actions a { color: #0055cc; }
+  .viewer-actions a:hover { color: #003a8c; }
+
+  .pdf-frame {
+    border: 1px solid #ddd;
+    background: #f9f9f9;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  .pdf-frame-title {
+    font-family: 'Georgia', serif;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 3px;
+  }
+  .pdf-frame-sub {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .pdf-line { height: 10px; background: #e8e8e8; margin: 6px 0; border-radius: 1px; }
+  .pdf-line.s { width: 60%; }
+  .pdf-line.m { width: 80%; }
+  .pdf-line.f { width: 100%; }
+  .pdf-math {
+    background: #f0f0f0;
+    border-left: 3px solid #ccc;
+    padding: 8px 12px;
+    margin: 10px 0;
+    font-size: 13px;
+    color: #333;
+    font-family: 'Courier New', monospace;
+    font-style: italic;
+  }
+  .pdf-nav { font-family: 'Courier New', monospace; font-size: 12px; color: #888; margin-top: 1rem; display: flex; gap: 1rem; }
+  .pdf-nav a { color: #0055cc; }
+  .pdf-nav a:hover { color: #003a8c; }
+
+  .related-list { list-style: none; padding: 0; }
+  .related-list li { padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+  .related-list li:last-child { border-bottom: none; }
+  .related-list .rl { font-family: 'Courier New', monospace; font-size: 12px; color: #999; margin-left: 6px; }
+
+  /* ── ABOUT ── */
+  .about-wrap { max-width: 500px; }
+  .about-wrap ul { padding-left: 1.25rem; color: #333; font-size: 14px; }
+  .about-wrap li { margin-bottom: 4px; }
+
+
+
+  /* ── FOOTER ── */
+  .site-footer {
+    border-top: 1px solid #e8e6e1;
+    padding: 1.25rem 0 2.5rem;
+    margin-top: 2.5rem;
+    font-size: 12px;
+    color: #ccc;
+    display: flex;
+    gap: 1rem;
+  }
+  .site-footer a { color: #bbb; text-decoration: none; }
+  .site-footer a:hover { color: #555; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-title">catatan kuliah</div>
+  <div class="site-sub">teknik robotika &amp; kecerdasan buatan &middot; semester 2</div>
+  <nav class="site-nav">
+    <a class="active" onclick="show('home', this)">beranda</a>
+    <a onclick="show('about', this)">tentang</a>
+  </nav>
+</header>
+
+<!-- ═══ HOME ═══ -->
+<div class="page active" id="page-home">
+  <h1>semua catatan</h1>
+  <p class="meta" id="home-meta">12 catatan &middot; 5 mata kuliah</p>
+
+  <div class="filter-row">
+    <span class="filter-label">filter:</span>
+    <button class="filter-btn active" onclick="setF(this, 'semua')">semua</button>
+    <button class="filter-btn" onclick="setF(this, 'kalkulus')">kalkulus</button>
+    <button class="filter-btn" onclick="setF(this, 'aljabar')">aljabar linear</button>
+    <button class="filter-btn" onclick="setF(this, 'fisika')">fisika dasar</button>
+    <button class="filter-btn" onclick="setF(this, 'analisis')">analisis kompleks</button>
+    <button class="filter-btn" onclick="setF(this, 'mekanika')">mekanika teknik</button>
+    <div class="search-wrap">
+      <input type="text" id="q" placeholder="cari judul..." oninput="render()">
+    </div>
+  </div>
+
+  <div class="note-count" id="cnt"></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>catatan</th>
+        <th>mata kuliah</th>
+        <th>tanggal</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<!-- ═══ VIEWER ═══ -->
+<div class="page" id="page-viewer">
+  <div class="viewer-back"><a onclick="show('home')">&larr; kembali</a></div>
+  <div class="viewer-meta" id="v-meta"></div>
+  <h1 id="v-title"></h1>
+  <div class="viewer-desc" id="v-desc"></div>
+  <div class="viewer-actions">
+    <a id="v-download" href="#">unduh PDF</a>
+    <a id="v-copy" href="#" onclick="copyLink(event)">salin tautan</a>
+  </div>
+  <div class="pdf-frame">
+    <div class="pdf-frame-title" id="v-pdf-title"></div>
+    <div class="pdf-frame-sub" id="v-pdf-sub"></div>
+    <div class="pdf-line f"></div>
+    <div class="pdf-line m"></div>
+    <div class="pdf-line f"></div>
+    <div class="pdf-math" id="v-math1"></div>
+    <div class="pdf-line s"></div>
+    <div class="pdf-line f"></div>
+    <div class="pdf-line m"></div>
+    <div class="pdf-math" id="v-math2"></div>
+    <div class="pdf-line f"></div>
+    <div class="pdf-line s"></div>
+    <div class="pdf-nav">
+      <span>halaman 1 / 8</span>
+      <a href="#">&larr; sebelumnya</a>
+      <a href="#">berikutnya &rarr;</a>
+    </div>
+  </div>
+  <h2>catatan terkait</h2>
+  <ul class="related-list" id="v-related"></ul>
+</div>
+
+<!-- ═══ ABOUT ═══ -->
+<div class="page" id="page-about">
+  <div class="about-wrap">
+    <h1>tentang</h1>
+    <p class="meta">oleh [nama lo]</p>
+    <p>Mahasiswa Teknik Robotika &amp; Kecerdasan Buatan semester 2. Website ini tempat gue naruh catatan kuliah yang ditulis pakai LaTeX — gratis, bebas dibagikan ke siapapun.</p>
+    <p>Kalau ada yang mau kontribusi, hubungi gue.</p>
+    <h2>mata kuliah semester ini</h2>
+    <ul>
+      <li>Kalkulus</li>
+      <li>Aljabar Linear</li>
+      <li>Fisika Dasar</li>
+      <li>Analisis Kompleks</li>
+      <li>Mekanika Teknik</li>
+    </ul>
+    <h2>kontak</h2>
+    <p style="font-size:14px;color:#555"><code>email@domain.com</code> &middot; <a href="#">GitHub</a></p>
+  </div>
+</div>
+
+
+
+<footer class="site-footer">
+  <span>catatan kuliah &copy; 2025</span>
+  <a href="#">source</a>
+  <a href="#">RSS</a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ════════════════════════════════════════════════
+  //  KONFIGURASI — isi dengan kredensial lo
+  //  Supabase Dashboard > Settings > API
+  // ════════════════════════════════════════════════
+  const SUPABASE_URL  = 'https://vtxaifnxbbwuvgsaitsz.supabase.co';
+  const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0eGFpZm54YmJ3dXZnc2FpdHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1OTY1NTUsImV4cCI6MjA5NTE3MjU1NX0.PT8ACN6cXPDiJYbzehQ6dtqyrKCGdv2kR6mJzy0544I';
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── STATE ──────────────────────────────────────
+  let allNotes  = [];   // semua data dari DB
+  let activeTag = 'semua';
+  let currentNote = null;
+
+  // ── INIT ───────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    loadNotes();
+  });
+
+  // ── FETCH NOTES ────────────────────────────────
+  async function loadNotes() {
+    setLoading(true);
+    const { data, error } = await sb
+      .from('notes_with_author')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Gagal memuat catatan:', error.message);
+      document.getElementById('cnt').textContent = 'gagal memuat catatan.';
+      setLoading(false);
+      return;
+    }
+
+    allNotes = data.map(n => ({
+      id:       n.id,
+      title:    n.title,
+      author:   n.author_name || '—',
+      tag:      matkulToTag(n.matkul),
+      label:    n.matkul,
+      desc:     n.description || '',
+      date:     formatDate(n.created_at),
+      pdf_url:  n.pdf_url,
+    }));
+
+    updateMeta();
+    render();
+    setLoading(false);
+  }
+
+  function setLoading(on) {
+    document.getElementById('cnt').textContent = on ? 'memuat...' : '';
+    document.getElementById('tbody').innerHTML = on
+      ? '<tr><td colspan="3" style="color:#999;font-family:Courier New,monospace;font-size:13px;padding:1rem 0">memuat catatan...</td></tr>'
+      : '';
+  }
+
+  function updateMeta() {
+    const matkulSet = new Set(allNotes.map(n => n.label));
+    document.getElementById('home-meta').textContent =
+      allNotes.length + ' catatan · ' + matkulSet.size + ' mata kuliah';
+  }
+
+  // ── FILTER & RENDER ────────────────────────────
+  function setF(el, tag) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    activeTag = tag;
+    render();
+  }
+
+  function render() {
+    const q = document.getElementById('q').value.toLowerCase();
+    let list = allNotes;
+    if (activeTag !== 'semua') list = list.filter(n => n.tag === activeTag);
+    if (q) list = list.filter(n =>
+      n.title.toLowerCase().includes(q) ||
+      n.author.toLowerCase().includes(q)
+    );
+    document.getElementById('cnt').textContent = 'menampilkan ' + list.length + ' catatan';
+    document.getElementById('tbody').innerHTML = list.length
+      ? list.map(n => `
+          <tr>
+            <td class="title"><a onclick="openNote('${n.id}')">${escHtml(n.title)}</a></td>
+            <td class="matkul">${escHtml(n.label)}</td>
+            <td class="date">${escHtml(n.date)}</td>
+          </tr>
+        `).join('')
+      : '<tr><td colspan="4" style="color:#ccc;font-size:13px;padding:1rem 0">tidak ada catatan ditemukan.</td></tr>';
+  }
+
+  // ── VIEWER ─────────────────────────────────────
+  function openNote(id) {
+    const n = allNotes.find(x => x.id === id);
+    if (!n) return;
+    currentNote = n;
+
+    document.getElementById('v-title').textContent   = n.title;
+    document.getElementById('v-meta').textContent    = n.label + ' · ' + n.author + ' · ' + n.date;
+    document.getElementById('v-desc').textContent    = n.desc || '—';
+    document.getElementById('v-pdf-title').textContent = n.title;
+    document.getElementById('v-pdf-sub').textContent   = n.label + ' · ' + n.author;
+    document.getElementById('v-download').href         = n.pdf_url;
+
+    // catatan terkait
+    const rel = allNotes.filter(x => x.tag === n.tag && x.id !== id).slice(0, 3);
+    document.getElementById('v-related').innerHTML = rel.length
+      ? rel.map(r => `
+          <li>
+            <a onclick="openNote('${r.id}')">${escHtml(r.title)}</a>
+            <span class="rl">${escHtml(r.label)}</span>
+          </li>
+        `).join('')
+      : '<li style="color:#ccc;font-size:13px">tidak ada catatan terkait</li>';
+
+    show('viewer');
+    window.scrollTo(0, 0);
+  }
+
+  function copyLink(e) {
+    e.preventDefault();
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      const el = document.getElementById('v-copy');
+      el.textContent = 'tersalin!';
+      setTimeout(() => { el.textContent = 'salin tautan'; }, 2000);
+    });
+  }
+
+  // ── NAVIGASI ───────────────────────────────────
+  function show(p, el) {
+    document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+    document.getElementById('page-' + p).classList.add('active');
+    if (el) {
+      document.querySelectorAll('.site-nav a').forEach(a => a.classList.remove('active'));
+      el.classList.add('active');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  // ── HELPERS ────────────────────────────────────
+  function matkulToTag(matkul) {
+    const map = {
+      'Kalkulus':        'kalkulus',
+      'Aljabar Linear':  'aljabar',
+      'Fisika Dasar':    'fisika',
+      'Analisis Kompleks': 'analisis',
+      'Mekanika Teknik': 'mekanika',
+    };
+    return map[matkul] || 'lainnya';
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('id-ID', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>

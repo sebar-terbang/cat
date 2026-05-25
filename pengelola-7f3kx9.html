@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pengelola</title>
+<!-- noindex supaya ga keindex search engine -->
+<meta name="robots" content="noindex, nofollow">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: #fff;
+    color: #111;
+    font-size: 15px;
+    line-height: 1.75;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 1.75rem;
+  }
+
+  a, a:visited { color: #0055cc; text-decoration: underline; cursor: pointer; }
+  a:hover { color: #003a8c; }
+  code { font-family: 'Courier New', monospace; font-size: 12.5px; background: #f4f4f4; padding: 1px 5px; border-radius: 3px; color: #333; }
+
+  /* ── HEADER ── */
+  .site-header { padding: 2rem 0 1rem; border-bottom: 1px solid #ddd; margin-bottom: 2rem; }
+  .site-title { font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: bold; color: #111; }
+  .site-sub { font-size: 13px; color: #888; margin-top: 4px; font-family: 'Courier New', monospace; }
+  .site-nav { margin-top: 0.6rem; font-size: 14px; display: flex; gap: 1.25rem; }
+  .site-nav a { color: #0055cc; text-decoration: none; }
+  .site-nav a:hover { text-decoration: underline; }
+  .site-nav a.active { color: #111; font-weight: bold; cursor: default; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── TYPOGRAPHY ── */
+  h1 { font-size: 1.4rem; font-weight: bold; margin-bottom: 0.4rem; line-height: 1.3; }
+  h2 { font-size: 1rem; font-weight: bold; margin: 1.5rem 0 0.5rem; }
+  p { margin-bottom: 1rem; color: #333; }
+  .meta { font-family: 'Courier New', monospace; font-size: 13px; color: #888; margin-bottom: 1.5rem; }
+  .section-hint { font-size: 13px; color: #888; margin-bottom: 1.25rem; }
+
+  /* ── FORM ── */
+  .form-wrap { max-width: 500px; }
+  .form-group { margin-bottom: 1.1rem; }
+  label {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+  input[type=text], input[type=email], select, textarea {
+    width: 100%;
+    font-size: 14px;
+    font-family: 'Georgia', serif;
+    border: 1px solid #ccc;
+    padding: 7px 10px;
+    outline: none;
+    background: #fff;
+    color: #111;
+    border-radius: 2px;
+    transition: border 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #0055cc; }
+  textarea { min-height: 100px; resize: vertical; }
+
+  .upload-area {
+    border: 2px dashed #ccc;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    background: #fafafa;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #888;
+    border-radius: 2px;
+    transition: all 0.15s;
+    margin-bottom: 1.1rem;
+  }
+  .upload-area:hover { border-color: #0055cc; color: #0055cc; }
+  .upload-area.has-file { border-color: #2a7a2a; color: #2a7a2a; }
+
+  .btn {
+    padding: 7px 20px;
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    background: #111;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: #333; }
+  .btn:disabled { background: #999; cursor: default; }
+  .btn-secondary {
+    background: #fff;
+    color: #111;
+    border: 1px solid #ccc;
+  }
+  .btn-secondary:hover { background: #f4f4f4; }
+  .btn-danger { background: #cc2200; }
+  .btn-danger:hover { background: #a01a00; }
+
+  /* ── TABLE (daftar catatan di admin) ── */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+  thead th {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: normal;
+    color: #666;
+    text-align: left;
+    padding: 0 0 8px;
+    border-bottom: 1px solid #ddd;
+  }
+  thead th:not(:last-child) { padding-right: 1rem; }
+  tbody td {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+    font-size: 14px;
+  }
+  tbody td:not(:last-child) { padding-right: 1rem; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #fafafa; }
+  td.t-title { font-weight: normal; max-width: 260px; }
+  td.t-matkul { font-family: 'Courier New', monospace; font-size: 12px; color: #666; white-space: nowrap; }
+  td.t-date { font-family: 'Courier New', monospace; font-size: 12px; color: #999; white-space: nowrap; }
+  td.t-actions { white-space: nowrap; font-size: 13px; }
+  td.t-actions a { margin-right: 0.75rem; color: #0055cc; text-decoration: none; }
+  td.t-actions a:hover { text-decoration: underline; }
+  td.t-actions a.del { color: #cc2200; }
+
+  /* ── ABOUT EDITOR ── */
+  .about-preview {
+    border: 1px solid #ddd;
+    background: #fafafa;
+    padding: 1.25rem;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    border-radius: 2px;
+    white-space: pre-wrap;
+    font-family: 'Georgia', serif;
+  }
+
+  /* ── MODAL EDIT ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 100;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 4rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 2rem;
+    width: 100%;
+    max-width: 520px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border-radius: 2px;
+  }
+  .modal h2 { margin-top: 0; margin-bottom: 1rem; }
+  .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+
+  /* ── STATUS ── */
+  .status {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .status.ok { background: #e8f5e8; color: #2a7a2a; display: block; }
+  .status.err { background: #fdecea; color: #cc2200; display: block; }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    border-top: 1px solid #ddd;
+    padding: 1rem 0 2rem;
+    margin-top: 2rem;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #999;
+    display: flex;
+    gap: 1rem;
+  }
+  .site-footer a { color: #888; text-decoration: none; }
+  .site-footer a:hover { color: #333; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-title">catatan kuliah — pengelola</div>
+  <div class="site-sub">panel admin · jangan dibagikan URL ini</div>
+  <nav class="site-nav">
+    <a class="active" onclick="show('catatan', this)">catatan</a>
+    <a onclick="show('upload', this)">upload baru</a>
+    <a onclick="show('tentang', this)">tentang</a>
+    <a href="index.html">← ke website</a>
+  </nav>
+</header>
+
+<!-- ═══ DAFTAR CATATAN ═══ -->
+<div class="page active" id="page-catatan">
+  <h1>semua catatan</h1>
+  <p class="meta" id="admin-meta">memuat...</p>
+  <div class="status" id="status-catatan"></div>
+  <table>
+    <thead>
+      <tr>
+        <th>judul</th>
+        <th>mata kuliah</th>
+        <th>tanggal</th>
+        <th>aksi</th>
+      </tr>
+    </thead>
+    <tbody id="admin-tbody"></tbody>
+  </table>
+</div>
+
+<!-- ═══ UPLOAD BARU ═══ -->
+<div class="page" id="page-upload">
+  <h1>upload catatan baru</h1>
+  <p class="meta">isi semua field lalu klik upload</p>
+  <div class="status" id="status-upload"></div>
+  <div class="form-wrap">
+    <form id="uploadForm">
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+        klik atau drag &amp; drop PDF di sini
+        <input type="file" id="fileInput" accept=".pdf" style="display:none">
+      </div>
+      <div class="form-group">
+        <label>judul</label>
+        <input type="text" id="fTitle" placeholder="cth: Transformasi Fourier — Konsep Dasar" required>
+      </div>
+      <div class="form-group">
+        <label>penulis</label>
+        <input type="text" id="fAuthor" placeholder="nama lo atau nama kontributor" required>
+      </div>
+      <div class="form-group">
+        <label>mata kuliah</label>
+        <select id="fMatkul">
+          <option>Kalkulus</option>
+          <option>Aljabar Linear</option>
+          <option>Fisika Dasar</option>
+          <option>Analisis Kompleks</option>
+          <option>Mekanika Teknik</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>deskripsi singkat</label>
+        <textarea id="fDesc" placeholder="apa yang dibahas di catatan ini?"></textarea>
+      </div>
+      <button class="btn" id="uploadBtn" type="submit">upload →</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ EDIT TENTANG ═══ -->
+<div class="page" id="page-tentang">
+  <h1>edit halaman tentang</h1>
+  <p class="meta">perubahan langsung tersimpan ke database</p>
+  <div class="status" id="status-tentang"></div>
+  <div class="form-wrap">
+    <div class="form-group">
+      <label>nama</label>
+      <input type="text" id="aboutName" placeholder="nama lo">
+    </div>
+    <div class="form-group">
+      <label>jurusan / prodi</label>
+      <input type="text" id="aboutProdi" placeholder="cth: Teknik Robotika & Kecerdasan Buatan">
+    </div>
+    <div class="form-group">
+      <label>semester</label>
+      <input type="text" id="aboutSemester" placeholder="cth: semester 2">
+    </div>
+    <div class="form-group">
+      <label>bio singkat</label>
+      <textarea id="aboutBio" placeholder="cerita singkat tentang lo dan tujuan website ini"></textarea>
+    </div>
+    <div class="form-group">
+      <label>email</label>
+      <input type="text" id="aboutEmail" placeholder="email@domain.com">
+    </div>
+    <div class="form-group">
+      <label>link github</label>
+      <input type="text" id="aboutGithub" placeholder="https://github.com/username">
+    </div>
+    <div class="form-group">
+      <label>mata kuliah (pisahkan dengan koma)</label>
+      <input type="text" id="aboutMatkul" placeholder="Kalkulus, Aljabar Linear, Fisika Dasar">
+    </div>
+    <button class="btn" id="saveAboutBtn" onclick="saveAbout()">simpan →</button>
+  </div>
+</div>
+
+<!-- ═══ MODAL EDIT CATATAN ═══ -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h2>edit catatan</h2>
+    <input type="hidden" id="editId">
+    <div class="form-group">
+      <label>judul</label>
+      <input type="text" id="editTitle">
+    </div>
+    <div class="form-group">
+      <label>mata kuliah</label>
+      <select id="editMatkul">
+        <option>Kalkulus</option>
+        <option>Aljabar Linear</option>
+        <option>Fisika Dasar</option>
+        <option>Analisis Kompleks</option>
+        <option>Mekanika Teknik</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>deskripsi</label>
+      <textarea id="editDesc"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="saveEdit()">simpan →</button>
+      <button class="btn btn-secondary" onclick="closeModal()">batal</button>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span>catatan kuliah &copy; 2025</span>
+  <a href="index.html">← ke website publik</a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ════════════════════════════════════════════
+  //  KONFIGURASI — sama dengan index.html
+  // ════════════════════════════════════════════
+  const SUPABASE_URL = 'https://vtxaifnxbbwuvgsaitsz.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0eGFpZm54YmJ3dXZnc2FpdHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1OTY1NTUsImV4cCI6MjA5NTE3MjU1NX0.PT8ACN6cXPDiJYbzehQ6dtqyrKCGdv2kR6mJzy0544I';
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let allNotes = [];
+  let selectedFile = null;
+
+  // ── INIT ─────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    loadNotes();
+    loadAbout();
+    setupUpload();
+  });
+
+  // ── NAVIGASI ─────────────────────────────────
+  function show(p, el) {
+    document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+    document.getElementById('page-' + p).classList.add('active');
+    if (el) {
+      document.querySelectorAll('.site-nav a').forEach(a => a.classList.remove('active'));
+      el.classList.add('active');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function setStatus(id, msg, type) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'status ' + type;
+    if (type === 'ok') setTimeout(() => { el.className = 'status'; }, 3000);
+  }
+
+  // ── LOAD CATATAN ─────────────────────────────
+  async function loadNotes() {
+    const { data, error } = await sb
+      .from('notes_with_author')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      document.getElementById('admin-meta').textContent = 'gagal memuat catatan.';
+      return;
+    }
+
+    allNotes = data;
+    document.getElementById('admin-meta').textContent = data.length + ' catatan terdaftar';
+    renderAdminTable(data);
+  }
+
+  function renderAdminTable(list) {
+    document.getElementById('admin-tbody').innerHTML = list.length
+      ? list.map(n => `
+          <tr>
+            <td class="t-title">${escHtml(n.title)}</td>
+            <td class="t-matkul">${escHtml(n.matkul)}</td>
+            <td class="t-date">${formatDate(n.created_at)}</td>
+            <td class="t-actions">
+              <a onclick="openEdit('${n.id}')">edit</a>
+              <a href="${n.pdf_url}" target="_blank">lihat PDF</a>
+              <a class="del" onclick="deleteNote('${n.id}', '${escHtml(n.title)}')">hapus</a>
+            </td>
+          </tr>
+        `).join('')
+      : '<tr><td colspan="4" style="color:#999;font-family:Courier New,monospace;font-size:13px;padding:1rem 0">belum ada catatan.</td></tr>';
+  }
+
+  // ── EDIT CATATAN ─────────────────────────────
+  function openEdit(id) {
+    const n = allNotes.find(x => x.id === id);
+    if (!n) return;
+    document.getElementById('editId').value    = n.id;
+    document.getElementById('editTitle').value = n.title;
+    document.getElementById('editMatkul').value = n.matkul;
+    document.getElementById('editDesc').value  = n.description || '';
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('editModal').classList.remove('open');
+  }
+
+  async function saveEdit() {
+    const id     = document.getElementById('editId').value;
+    const title  = document.getElementById('editTitle').value.trim();
+    const matkul = document.getElementById('editMatkul').value;
+    const desc   = document.getElementById('editDesc').value.trim();
+
+    if (!title) { alert('Judul tidak boleh kosong.'); return; }
+
+    const { error } = await sb.from('notes').update({
+      title,
+      matkul,
+      description: desc || null,
+    }).eq('id', id);
+
+    if (error) {
+      setStatus('status-catatan', 'Gagal menyimpan: ' + error.message, 'err');
+    } else {
+      closeModal();
+      setStatus('status-catatan', 'Catatan berhasil diperbarui.', 'ok');
+      await loadNotes();
+    }
+  }
+
+  // ── HAPUS CATATAN ────────────────────────────
+  async function deleteNote(id, title) {
+    if (!confirm('Hapus catatan "' + title + '"?\nFile PDF juga akan dihapus.')) return;
+
+    const note = allNotes.find(x => x.id === id);
+
+    // hapus PDF dari storage dulu
+    if (note && note.pdf_path) {
+      await sb.storage.from('notes-pdf').remove([note.pdf_path]);
+    }
+
+    const { error } = await sb.from('notes').delete().eq('id', id);
+    if (error) {
+      setStatus('status-catatan', 'Gagal menghapus: ' + error.message, 'err');
+    } else {
+      setStatus('status-catatan', 'Catatan "' + title + '" dihapus.', 'ok');
+      await loadNotes();
+    }
+  }
+
+  // ── UPLOAD CATATAN BARU ──────────────────────
+  function setupUpload() {
+    const area  = document.getElementById('uploadArea');
+    const input = document.getElementById('fileInput');
+
+    area.addEventListener('dragover', e => { e.preventDefault(); area.style.borderColor = '#0055cc'; });
+    area.addEventListener('dragleave', () => { area.style.borderColor = '#ccc'; });
+    area.addEventListener('drop', e => {
+      e.preventDefault();
+      area.style.borderColor = '#ccc';
+      if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+    });
+    input.addEventListener('change', () => { if (input.files[0]) setFile(input.files[0]); });
+
+    document.getElementById('uploadForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      await doUpload();
+    });
+  }
+
+  function setFile(file) {
+    if (file.type !== 'application/pdf') { alert('Hanya file PDF.'); return; }
+    selectedFile = file;
+    const area = document.getElementById('uploadArea');
+    area.textContent = '✓ ' + file.name;
+    area.classList.add('has-file');
+  }
+
+  async function doUpload() {
+    const btn    = document.getElementById('uploadBtn');
+    const title  = document.getElementById('fTitle').value.trim();
+    const author = document.getElementById('fAuthor').value.trim();
+    const matkul = document.getElementById('fMatkul').value;
+    const desc   = document.getElementById('fDesc').value.trim();
+
+    if (!selectedFile || !title || !author) {
+      setStatus('status-upload', 'PDF, judul, dan penulis wajib diisi.', 'err');
+      return;
+    }
+
+    btn.textContent = 'mengupload...';
+    btn.disabled = true;
+
+    try {
+      // 1. cek / buat author
+      let authorId;
+      const { data: existing } = await sb.from('authors').select('id').eq('name', author).maybeSingle();
+      if (existing) {
+        authorId = existing.id;
+      } else {
+        const { data: newA, error: aErr } = await sb.from('authors').insert({ name: author }).select('id').single();
+        if (aErr) throw aErr;
+        authorId = newA.id;
+      }
+
+      // 2. upload PDF
+      const fileName = Date.now() + '_' + selectedFile.name.replace(/\s+/g, '_');
+      const filePath = authorId + '/' + fileName;
+      const { error: upErr } = await sb.storage.from('notes-pdf').upload(filePath, selectedFile);
+      if (upErr) throw upErr;
+
+      // 3. public URL
+      const { data: urlData } = sb.storage.from('notes-pdf').getPublicUrl(filePath);
+
+      // 4. simpan ke DB
+      const { error: nErr } = await sb.from('notes').insert({
+        title, description: desc || null, matkul,
+        author_id: authorId, pdf_url: urlData.publicUrl, pdf_path: filePath,
+      });
+      if (nErr) throw nErr;
+
+      setStatus('status-upload', 'Catatan "' + title + '" berhasil diupload!', 'ok');
+      document.getElementById('uploadForm').reset();
+      const area = document.getElementById('uploadArea');
+      area.textContent = 'klik atau drag & drop PDF di sini';
+      area.classList.remove('has-file');
+      selectedFile = null;
+      await loadNotes();
+
+    } catch (err) {
+      setStatus('status-upload', 'Upload gagal: ' + err.message, 'err');
+    } finally {
+      btn.textContent = 'upload →';
+      btn.disabled = false;
+    }
+  }
+
+  // ── ABOUT EDITOR ─────────────────────────────
+  // Simpan konten "tentang" sebagai satu baris di tabel site_config
+  // Jalankan dulu di Supabase SQL Editor:
+  //   CREATE TABLE site_config (key TEXT PRIMARY KEY, value TEXT);
+  //   INSERT INTO site_config VALUES ('about', '{}');
+  //   ALTER TABLE site_config ENABLE ROW LEVEL SECURITY;
+  //   CREATE POLICY "public read config" ON site_config FOR SELECT USING (true);
+  //   CREATE POLICY "auth write config" ON site_config FOR ALL TO authenticated USING (true);
+
+  async function loadAbout() {
+    const { data, error } = await sb.from('site_config').select('value').eq('key', 'about').single();
+    if (error || !data) return;
+    try {
+      const v = JSON.parse(data.value);
+      document.getElementById('aboutName').value     = v.name     || '';
+      document.getElementById('aboutProdi').value    = v.prodi    || '';
+      document.getElementById('aboutSemester').value = v.semester || '';
+      document.getElementById('aboutBio').value      = v.bio      || '';
+      document.getElementById('aboutEmail').value    = v.email    || '';
+      document.getElementById('aboutGithub').value   = v.github   || '';
+      document.getElementById('aboutMatkul').value   = (v.matkul  || []).join(', ');
+    } catch(e) {}
+  }
+
+  async function saveAbout() {
+    const btn = document.getElementById('saveAboutBtn');
+    btn.textContent = 'menyimpan...';
+    btn.disabled = true;
+
+    const payload = {
+      name:     document.getElementById('aboutName').value.trim(),
+      prodi:    document.getElementById('aboutProdi').value.trim(),
+      semester: document.getElementById('aboutSemester').value.trim(),
+      bio:      document.getElementById('aboutBio').value.trim(),
+      email:    document.getElementById('aboutEmail').value.trim(),
+      github:   document.getElementById('aboutGithub').value.trim(),
+      matkul:   document.getElementById('aboutMatkul').value.split(',').map(s => s.trim()).filter(Boolean),
+    };
+
+    const { error } = await sb.from('site_config')
+      .upsert({ key: 'about', value: JSON.stringify(payload) });
+
+    if (error) {
+      setStatus('status-tentang', 'Gagal menyimpan: ' + error.message, 'err');
+    } else {
+      setStatus('status-tentang', 'Halaman tentang berhasil disimpan.', 'ok');
+    }
+
+    btn.textContent = 'simpan →';
+    btn.disabled = false;
+  }
+
+  // ── HELPERS ──────────────────────────────────
+  function formatDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>
